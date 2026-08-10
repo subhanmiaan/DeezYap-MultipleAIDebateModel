@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ⚡ DeezYap — Multi-Agent AI Consensus Hub
 
 **DeezYap** debates your question across multiple AI models in parallel, has them cross-critique each other, then synthesizes a single, judged consensus answer — instead of trusting any one model's first response.
@@ -143,3 +144,7 @@ MIT — feel free to fork and adapt.
 <div align="center">
 Built by <a href="https://github.com/subhanmiaan">@subhanmiaan</a>
 </div>
+=======
+# DeezYap-MultipleAIDebateModel
+Multi-agent AI consensus engine — debates your prompt across Gemini, real Groq Llama 3.3, and DeepSeek in parallel, cross-critiques, then synthesizes a judged verdict.
+>>>>>>> 54c78ff0b9496bbf033deb190f772775e5fb01e4
