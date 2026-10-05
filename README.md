@@ -1,150 +1,119 @@
-<<<<<<< HEAD
-# ⚡ DeezYap — Multi-Agent AI Consensus Hub
+<div align="center">
 
-**DeezYap** debates your question across multiple AI models in parallel, has them cross-critique each other, then synthesizes a single, judged consensus answer — instead of trusting any one model's first response.
+# DeezYap ⚡ AI Consensus Hub
 
-Built with React, TypeScript, Express, and the Gemini API, with real free-tier Groq and DeepSeek integration.
+**Explore a question through parallel drafts, cross-critique and a synthesized answer.**
 
----
+React · TypeScript · Express · Gemini · Optional Groq & DeepSeek
 
-## ✨ Features
+[How it works](#how-it-works) · [Model routing](#model-routing) · [Setup](#local-setup) · [Limitations](#limitations)
 
-- **Parallel multi-agent drafting** — ChatGPT, Claude, Llama 3.3, DeepSeek, and a live-search-grounded Perplexity-style agent all answer your prompt independently.
-- **Cross-critique round** (Deep mode) — agents review and challenge each other's positions before a final answer is formed.
-- **Synthesized master consensus** — a dedicated judge pass merges everything into one answer, with explicit agreed points and points of divergence.
-- **Independent Judge Verdict** — a separate, impartial scoring pass rates each agent's contribution 0–100 with specific feedback, so you can see who actually helped.
-- **Agreement Matrix** — visual breakdown of how closely each model's answer aligned with the final consensus.
-- **Real-time web grounding** — the Perplexity-style agent uses live Google Search grounding, with sources shown and cited.
-- **Debate modes** — Balanced, Technical, Fact Check, and Creative, each shifting how agents are prompted.
-- **Fast vs Deep intensity** — skip the critique round for quick answers, or run the full debate for higher-confidence results.
-- **Debate history** — past debates are saved locally in your browser and revisitable from the sidebar.
+</div>
 
-## 🧠 How It Works
+## Overview
 
-```
-Your Prompt
-    │
-    ▼
-┌─────────────────────────────────────────────┐
-│ Step 1 — Parallel Draft Generation           │
-│ Each agent answers independently             │
-└─────────────────────────────────────────────┘
-    │
-    ▼
-┌─────────────────────────────────────────────┐
-│ Step 2 — Cross-Critique (Deep mode only)     │
-│ Agents review and challenge each other       │
-└─────────────────────────────────────────────┘
-    │
-    ▼
-┌─────────────────────────────────────────────┐
-│ Step 3 — Synthesis                           │
-│ Chief Judge merges everything into one       │
-│ consensus answer + agreement matrix          │
-└─────────────────────────────────────────────┘
-    │
-    ▼
-┌─────────────────────────────────────────────┐
-│ Step 4 — Independent Judge Evaluation        │
-│ A separate pass scores each agent 0–100      │
-└─────────────────────────────────────────────┘
-```
+DeezYap is a multi-agent debate experiment. It runs several agent perspectives, optionally cross-critiques their answers, synthesizes a consensus, and performs a separate judging pass. The interface presents agreement, divergence and model-generated evaluation scores.
 
-### Which agents are "real" vs simulated?
+The current repository uses **React 19, Vite, TypeScript, Tailwind CSS and an Express backend**. It is not the earlier Next.js/Supabase architecture described in some project summaries.
 
-| Agent | Backend | Notes |
-|---|---|---|
-| 🐋 DeepSeek R1 / V3 | **Real** (with key) | Calls DeepSeek's official API directly. Falls back to a Gemini-simulated persona if no key is set. |
-| ⚡ Groq / Llama 3.3 70B | **Real** (with key) | Calls Groq's free-tier API directly. Falls back to a Gemini-simulated persona if no key is set. |
-| 🔍 Perplexity Search Agent | **Real** | Uses Gemini with live Google Search grounding — genuinely fetches current web sources. |
-| 🤖 ChatGPT (GPT-4o) | Simulated | OpenAI has no free API tier, so this persona runs on Gemini with a GPT-4o-style system prompt. |
-| 🧠 Claude 3.5 Sonnet | Simulated | Anthropic has no free API tier, so this persona runs on Gemini with a Claude-style system prompt. |
+## How it works
 
-This is stated plainly in-app too (API Keys modal) — no agent pretends to be something it isn't without disclosure.
+1. **Draft:** generate independent agent responses in parallel.
+2. **Critique:** in Deep mode, compare and challenge the drafts; Fast mode skips this stage.
+3. **Synthesize:** produce a combined answer, agreed points, differences and alignment scores.
+4. **Evaluate:** run a separate judge pass to assess agent contributions.
 
-## 🛠️ Tech Stack
+The application supports balanced, technical, fact-check and creative modes. Search grounding is collected during the search agent’s draft and carried into the synthesis output.
 
-- **Frontend:** React 19, TypeScript, Tailwind CSS, Vite
-- **Backend:** Express (wrapping Vite as middleware), TypeScript, `tsx`
-- **AI:** Google Gemini API (`@google/genai`), Groq API, DeepSeek API
+## Model routing
 
-## 🚀 Getting Started
+Agent names in the interface do not always mean a direct call to the named provider.
 
-### Prerequisites
+| Agent | Current implementation |
+|---|---|
+| Llama | Groq API when a key is configured; draft fallback can use a Gemini persona |
+| DeepSeek | Official DeepSeek chat API when a key is configured; draft fallback can use a Gemini persona |
+| Search / Perplexity-style agent | Gemini with Google Search grounding; not a direct Perplexity API integration |
+| ChatGPT-style agent | A Gemini-powered persona; not the OpenAI API |
+| Claude-style agent | A Gemini-powered persona; not the Anthropic API |
 
-- [Node.js](https://nodejs.org/) 18+
-- A free [Google Gemini API key](https://aistudio.google.com/app/apikey) (required)
-- Optional: a free [Groq API key](https://console.groq.com/keys) for real Llama 3.3 70B
-- Optional: a free [DeepSeek API key](https://platform.deepseek.com/) (5M token trial, no card) for real DeepSeek
+Provider errors may also produce generic fallback content. Read the limitations below before interpreting a result.
 
-### Installation
+## Local setup
+
+Use a Node.js version compatible with the versions in `package.json`. Configure a Gemini API key; Groq and DeepSeek keys are optional. Provider pricing, quotas and model availability are external requirements—this project does not guarantee free access.
 
 ```bash
-git clone https://github.com/subhanmiaan/deezyap.git
-cd deezyap
+git clone https://github.com/subhanmiaan/DeezYap-MultipleAIDebateModel.git
+cd DeezYap-MultipleAIDebateModel
 npm install
 ```
 
-### Configuration
+Create an untracked `.env` file at the repository root:
 
-Copy the example env file and fill in your keys:
-
-```bash
-cp .env.example .env
+```dotenv
+GEMINI_API_KEY=replace_with_your_key
+GROQ_API_KEY=optional_key
+DEEPSEEK_API_KEY=optional_key
 ```
-
-```env
-GEMINI_API_KEY=your_gemini_key_here
-
-# Optional — enables real (non-simulated) agents:
-GROQ_API_KEY=your_groq_key_here
-DEEPSEEK_API_KEY=your_deepseek_key_here
-```
-
-> Groq and DeepSeek keys can also be entered directly in the app's **API Keys** modal instead of `.env` — useful if you're deploying somewhere you can't set server env vars.
-
-### Run locally
 
 ```bash
 npm run dev
 ```
 
-Then open **http://localhost:3000**.
+Open **http://localhost:3000**. The server binds to `0.0.0.0`, but localhost is the address to use in your browser.
 
-> ⚠️ Use `localhost:3000`, not `0.0.0.0:3000` — the latter is a bind address, not a browsable URL.
+## Scripts
 
-## 📁 Project Structure
+| Command | Purpose |
+|---|---|
+| `npm run dev` | Start Express with Vite development middleware |
+| `npm run build` | Build the Vite frontend and bundle the Node server |
+| `npm run start` | Run the compiled server |
+| `npm run lint` | Type-check with `tsc --noEmit` |
+| `npm run preview` | Preview the Vite frontend only; not a replacement for the API server |
 
-```
-.
-├── server.ts                 # Express entry point (wraps Vite middleware, hosts /api routes)
-├── server/
-│   └── orchestrator.ts       # Core debate pipeline: drafts → critiques → synthesis → judge
-├── src/
-│   ├── App.tsx                # Root component, debate state & progress tracking
-│   ├── components/            # UI components (chat, tabs, modals, cards)
-│   ├── services/
-│   │   └── debateService.ts   # Client → /api/debate bridge
-│   ├── data/
-│   │   └── agents.ts          # Agent personas, avatars, colors
-│   └── types.ts                # Shared TypeScript types
-└── .env.example
+For a production-mode local run on macOS/Linux:
+
+```bash
+npm run build
+NODE_ENV=production npm run start
 ```
 
-## 🔒 Security Note
+PowerShell:
 
-Never commit your `.env` file — it's already excluded via `.gitignore`. If you ever paste an API key into a chat, commit, or screenshot by mistake, revoke and regenerate it immediately from the provider's dashboard.
+```powershell
+npm run build
+$env:NODE_ENV = "production"
+npm run start
+```
 
-## 📄 License
+## Architecture
 
-MIT — feel free to fork and adapt.
+| Location | Responsibility |
+|---|---|
+| `server.ts` | Express server, API routes and frontend serving |
+| `server/orchestrator.ts` | Provider calls, cache, drafting, critique, synthesis and evaluation |
+| `src/App.tsx` | Application state and debate experience |
+| `src/components/` | Interface components |
+| `src/services/debateService.ts` | Client-to-server debate requests |
+| `src/data/agents.ts` | Agent configuration and personas |
+| `src/types.ts` | Shared TypeScript types |
+
+The Express server exposes `/api/health`, `/api/debate` and `/api/cache/clear`. The implementation uses an in-memory debate cache; it is not a durable database.
+
+## Limitations
+
+- **Consensus is not verification.** Generated confidence and alignment scores are model judgments, not calibrated probabilities or benchmarks.
+- The code clamps some scores and supplies generic fallback answers when calls fail. An apparently complete result does not prove all providers succeeded.
+- The critique metadata uses heuristics and fallback values; do not treat it as a measured agreement statistic.
+- The in-memory cache key uses the prompt, mode and intensity. It does not isolate results by user or configured provider keys and should be reviewed before multi-user deployment.
+- Model identifiers are defined in the orchestrator. Verify their availability with your provider before running.
+- Local browser history and the server cache serve different purposes; neither is a production account system.
+- This repository needs runtime, access-control and provider-behavior review before public production deployment. This README refresh did not execute live AI calls.
+
+Keep API keys out of source control. Prompts are sent to the configured external AI providers; avoid entering confidential data without reviewing those providers and the application’s handling.
 
 ---
 
-<div align="center">
-Built by <a href="https://github.com/subhanmiaan">@subhanmiaan</a>
-</div>
-=======
-# DeezYap-MultipleAIDebateModel
-Multi-agent AI consensus engine — debates your prompt across Gemini, real Groq Llama 3.3, and DeepSeek in parallel, cross-critiques, then synthesizes a judged verdict.
->>>>>>> 54c78ff0b9496bbf033deb190f772775e5fb01e4
+Built by [**Muhammad Subhan**](https://github.com/subhanmiaan) · [Contact](mailto:wsubhan5969@gmail.com)
